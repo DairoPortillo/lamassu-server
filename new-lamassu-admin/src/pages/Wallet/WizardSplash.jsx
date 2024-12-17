@@ -62,6 +62,8 @@ const getLogo = code => {
       return TronLogo
     case 'LN':
       return BitcoinLogo
+    case 'WLD':
+      return BitcoinLogo
     default:
       return null
   }

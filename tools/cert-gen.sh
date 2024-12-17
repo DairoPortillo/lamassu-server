@@ -44,45 +44,52 @@ print_error () {
 
 {
   openssl genrsa \
-    -out $CA_KEY_PATH \
-    4096 >> $LOG_FILE 2>&1
+    -out "$CA_KEY_PATH" \
+    4096 >> "$LOG_FILE" 2>&1
 } || { print_error "openssl genrsa to CA_KEY_PATH failed" "$OPENSSL_ERROR_HINT"; exit 1; }
 
 {
   openssl req \
     -x509 \
     -sha256 \
-    -new \
+    -newkey rsa:2048 \
     -nodes \
-    -key $CA_KEY_PATH \
+    -keyout "$CA_KEY_PATH" \
     -days 3560 \
-    -out $CA_PATH \
+    -out "$CA_PATH" \
     -subj "/C=IS/ST=/L=Reykjavik/O=Lamassu Operator CA/CN=lamassu-operator.is" \
-    >> $LOG_FILE 2>&1
+    -addext "subjectKeyIdentifier=hash" \
+    -addext "basicConstraints=critical,CA:TRUE" \
+    -addext "keyUsage=critical,keyCertSign,cRLSign" \
+    >> "$LOG_FILE" 2>&1
 } || { print_error "openssl req with CA_KEY_PATH failed" "$OPENSSL_ERROR_HINT"; exit 1; }
 
 {
   openssl genrsa \
-    -out $SERVER_KEY_PATH \
-    4096 >> $LOG_FILE 2>&1
+    -out "$SERVER_KEY_PATH" \
+    4096 >> "$LOG_FILE" 2>&1
 } || { print_error "openssl genrsa SERVER_KEY_PATH failed" "$OPENSSL_ERROR_HINT"; exit 1; }
 
 {
   openssl req -new \
-    -key $SERVER_KEY_PATH \
+    -key "$SERVER_KEY_PATH" \
     -out /tmp/Lamassu_OP.csr.pem \
     -subj "/C=IS/ST=/L=Reykjavik/O=Lamassu Operator/CN=$DOMAIN" \
-    >> $LOG_FILE 2>&1
+    -addext "subjectAltName=DNS:$DOMAIN" \
+    >> "$LOG_FILE" 2>&1
 } || { print_error "openssl req with SERVER_KEY_PATH failed" "$OPENSSL_ERROR_HINT"; exit 1; }
 
 {
   openssl x509 \
     -req -in /tmp/Lamassu_OP.csr.pem \
-    -CA $CA_PATH \
-    -CAkey $CA_KEY_PATH \
+    -CA "$CA_PATH" \
+    -CAkey "$CA_KEY_PATH" \
     -CAcreateserial \
-    -out $SERVER_CERT_PATH \
-    -days 3650 >> $LOG_FILE 2>&1
+    -out "$SERVER_CERT_PATH" \
+    -days 3650 \
+    -sha256 \
+    -extfile <(printf "subjectAltName=DNS:$DOMAIN") \
+    >> "$LOG_FILE" 2>&1
 } || { print_error "openssl x509 failed" "$OPENSSL_ERROR_HINT"; exit 1; }
 
 rm /tmp/Lamassu_OP.csr.pem
