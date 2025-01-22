@@ -41,6 +41,14 @@ jobs:
           name: lamassu-server.tar.gz
           path: lamassu-server.tar.gz
 
+      - name: Move build directory if exists
+        run: |
+          if [ -d "new-lamassu-admin/build" ]; then
+            mv new-lamassu-admin/build public/
+          else
+            echo "Build directory does not exist"
+          fi
+
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache 
