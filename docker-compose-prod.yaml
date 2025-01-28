@@ -46,7 +46,7 @@ services:
     build:
       context: .
       dockerfile: build/server.Dockerfile
-      target: l-s
+      target: l-a-s
     container_name: lamassu-admin-server
     restart: on-failure
     ports:
