@@ -4,7 +4,7 @@ services:
     image: postgres
     restart: on-failure
     env_file:
-      - .env
+      - .lamassu.env
     logging:
       options:
         max-size: 10m
@@ -37,7 +37,7 @@ services:
       - ~/lamassu-data/.migrate:/etc/lamassu/.migrate
       - ~/lamassu-data/blockchains:/mnt/blockchains
     env_file:
-      - .env
+      - .lamassu.env
     depends_on:
       database:
         condition: service_healthy
@@ -60,7 +60,7 @@ services:
       - ~/lamassu-data/.migrate:/etc/lamassu/.migrate
       - ~/lamassu-data/blockchains:/mnt/blockchains
     env_file:
-      - .env
+      - .lamassu.env
     depends_on:
       lamassu-server:
         condition: service_started
