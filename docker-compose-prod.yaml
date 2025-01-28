@@ -1,0 +1,60 @@
+services:
+  database:
+    container_name: postgres-db
+    image: postgres
+    restart: on-failure
+    env_file:
+      - .env
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - 15432:5432
+    volumes:
+      - ~/lamassu-data/psql:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres -d postgres
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  lamassu-server:
+    image: lamassu/lamassu-server:0.1
+    container_name: lamassu-server
+    restart: on-failure
+    ports:
+      - 3000:3000
+    volumes:
+      - ~/lamassu-data/certs:/etc/ssl/certs
+      - ~/lamassu-data/private:/etc/ssl/private
+      - ~/lamassu-data/files:/opt/lamassu-server
+      - ~/lamassu-data/mnemonics:/etc/lamassu/mnemonics
+      - ~/lamassu-data/ofac:/var/lamassu/ofac
+      - ~/lamassu-data/.migrate:/etc/lamassu/.migrate
+      - ~/lamassu-data/blockchains:/mnt/blockchains
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+
+  lamassu-admin-server:
+    image: lamassu/lamassu-admin-server:0.1
+    container_name: lamassu-admin-server
+    restart: on-failure
+    ports:
+      - 443:443
+    volumes:
+      - ~/lamassu-data/certs:/etc/ssl/certs
+      - ~/lamassu-data/private:/etc/ssl/private
+      - ~/lamassu-data/files:/opt/lamassu-server
+      - ~/lamassu-data/mnemonics:/etc/lamassu/mnemonics
+      - ~/lamassu-data/ofac:/var/lamassu/ofac
+      - ~/lamassu-data/.migrate:/etc/lamassu/.migrate
+      - ~/lamassu-data/blockchains:/mnt/blockchains
+    env_file:
+      - .env
+    depends_on:
+      lamassu-server:
+        condition: service_started
