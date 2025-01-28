@@ -20,7 +20,10 @@ services:
       retries: 10
 
   lamassu-server:
-    image: lamassu/lamassu-server:0.1
+    build:
+      context: .
+      dockerfile: build/server.Dockerfile
+      target: l-s
     container_name: lamassu-server
     restart: on-failure
     ports:
@@ -40,7 +43,10 @@ services:
         condition: service_healthy
 
   lamassu-admin-server:
-    image: lamassu/lamassu-admin-server:0.1
+    build:
+      context: .
+      dockerfile: build/server.Dockerfile
+      target: l-s
     container_name: lamassu-admin-server
     restart: on-failure
     ports:
