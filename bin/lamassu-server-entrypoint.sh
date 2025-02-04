@@ -21,5 +21,5 @@ echo "Executing migrations..."
 node /lamassu-server/bin/lamassu-migrate
 
 echo "Starting server..."
-node /lamassu-server/bin/lamassu-server
+node /lamassu-server/bin/lamassu-server --mockScoring
 
